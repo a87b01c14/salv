@@ -1,4 +1,4 @@
-# salv
+# ABAP salv
 Encapsulated SALV class, which can conveniently display ALV
 
 ```ABAP
