@@ -22,7 +22,7 @@ START-OF-SELECTION.
 
 
   lo_salv->hide_column( 'MANDT' ).
-  lo_salv->set_column_text( im_colname = 'SEATSMAX_B' im_text = '商务舱最大容量' ).
+  lo_salv->set_column_text( im_colname = 'SEATSMAX_B' im_text = 'CHANGE TEXT' ).
   lo_salv->set_column_key( im_colname = 'PLANETYPE' ).
 
   "Display full screen grid
