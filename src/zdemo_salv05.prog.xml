@@ -9,13 +9,20 @@
     <FIXPT>X</FIXPT>
     <UCCHECK>X</UCCHECK>
    </PROGDIR>
+   <TPOOL>
+    <item>
+     <ID>R</ID>
+     <ENTRY>SALV DEMO05</ENTRY>
+     <LENGTH>70</LENGTH>
+    </item>
+   </TPOOL>
    <I18N_TPOOL>
     <item>
      <LANGUAGE>1</LANGUAGE>
      <TEXTPOOL>
       <item>
        <ID>R</ID>
-       <ENTRY>SALV DEMO03</ENTRY>
+       <ENTRY>SALV DEMO05</ENTRY>
        <LENGTH>11</LENGTH>
       </item>
      </TEXTPOOL>
