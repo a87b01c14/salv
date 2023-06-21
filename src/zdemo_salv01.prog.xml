@@ -5,7 +5,7 @@
    <PROGDIR>
     <NAME>ZDEMO_SALV01</NAME>
     <SUBC>1</SUBC>
-    <RLOAD>1</RLOAD>
+    <RLOAD>E</RLOAD>
     <FIXPT>X</FIXPT>
     <UCCHECK>X</UCCHECK>
    </PROGDIR>

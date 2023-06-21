@@ -5,7 +5,7 @@
    <PROGDIR>
     <NAME>ZDEMO_SALV04</NAME>
     <SUBC>1</SUBC>
-    <RLOAD>1</RLOAD>
+    <RLOAD>E</RLOAD>
     <FIXPT>X</FIXPT>
     <UCCHECK>X</UCCHECK>
    </PROGDIR>
@@ -22,7 +22,7 @@
      <TEXTPOOL>
       <item>
        <ID>R</ID>
-       <ENTRY>SALV DEMO03</ENTRY>
+       <ENTRY>SALV DEMO04</ENTRY>
        <LENGTH>11</LENGTH>
       </item>
      </TEXTPOOL>
