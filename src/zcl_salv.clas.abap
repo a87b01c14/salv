@@ -1,16 +1,16 @@
-CLASS zcl_salv DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+class ZCL_SALV definition
+  public
+  final
+  create public .
 
-  PUBLIC SECTION.
+public section.
 
-    INTERFACES zif_salv_event_receiver .
+  interfaces ZIF_SALV_EVENT_RECEIVER .
 
-    DATA mv_repid TYPE sy-repid .
-    DATA mt_events TYPE slis_t_event .
-    CONSTANTS:
-      BEGIN OF events,
+  data MV_REPID type SY-REPID .
+  data MT_EVENTS type SLIS_T_EVENT .
+  constants:
+    BEGIN OF events,
         top_of_page          TYPE slis_formname VALUE 'TOP_OF_PAGE',
         end_of_page          TYPE slis_formname VALUE 'END_OF_PAGE',
         before_salv_function TYPE slis_formname VALUE 'BEFORE_SALV_FUNCTION',
@@ -19,89 +19,90 @@ CLASS zcl_salv DEFINITION
         double_click         TYPE slis_formname VALUE 'DOUBLE_CLICK',
         link_click           TYPE slis_formname VALUE 'LINK_CLICK',
       END OF events .
-    DATA cb_top_of_page TYPE slis_formname VALUE 'FRM_SALV_TOP_OF_PAGE' ##NO_TEXT.
-    DATA cb_end_of_page TYPE slis_formname VALUE 'FRM_SALV_END_OF_PAGE' ##NO_TEXT.
-    DATA cb_before_salv_function TYPE slis_formname VALUE 'FRM_SALV_BEFORE_SALV_FUNCTION' ##NO_TEXT.
-    DATA cb_after_salv_function TYPE slis_formname VALUE 'FRM_SALV_AFTER_SALV_FUNCTION' ##NO_TEXT.
-    DATA cb_added_function TYPE slis_formname VALUE 'FRM_SALV_ADDED_FUNCTION' ##NO_TEXT.
-    DATA cb_double_click TYPE slis_formname VALUE 'FRM_SALV_DOUBLE_CLICK' ##NO_TEXT.
-    DATA cb_link_click TYPE slis_formname VALUE 'FRM_SALV_LINK_CLICK' ##NO_TEXT.
+  data CB_TOP_OF_PAGE type SLIS_FORMNAME value 'FRM_SALV_TOP_OF_PAGE' ##NO_TEXT.
+  data CB_END_OF_PAGE type SLIS_FORMNAME value 'FRM_SALV_END_OF_PAGE' ##NO_TEXT.
+  data CB_BEFORE_SALV_FUNCTION type SLIS_FORMNAME value 'FRM_SALV_BEFORE_SALV_FUNCTION' ##NO_TEXT.
+  data CB_AFTER_SALV_FUNCTION type SLIS_FORMNAME value 'FRM_SALV_AFTER_SALV_FUNCTION' ##NO_TEXT.
+  data CB_ADDED_FUNCTION type SLIS_FORMNAME value 'FRM_SALV_ADDED_FUNCTION' ##NO_TEXT.
+  data CB_DOUBLE_CLICK type SLIS_FORMNAME value 'FRM_SALV_DOUBLE_CLICK' ##NO_TEXT.
+  data CB_LINK_CLICK type SLIS_FORMNAME value 'FRM_SALV_LINK_CLICK' ##NO_TEXT.
 
-    METHODS constructor
-      IMPORTING
-        VALUE(im_repid)    TYPE sy-repid OPTIONAL
-        VALUE(im_table)    TYPE STANDARD TABLE
-        !im_container      TYPE REF TO cl_gui_container OPTIONAL
-        !im_container_name TYPE string OPTIONAL
-        VALUE(im_row_name) TYPE lvc_fname DEFAULT 'ROW_NO'
-        !im_handle         TYPE slis_handl OPTIONAL
-        !im_pfstatus       TYPE sypfkey OPTIONAL
-        !im_t_excluding    TYPE kkblo_t_extab OPTIONAL
-        !im_t_events       TYPE slis_t_event OPTIONAL .
-    METHODS display .
-    METHODS hide_column
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname .
-    METHODS set_column_f4
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        VALUE(im_value)   TYPE sap_bool .
-    METHODS set_column_text
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        VALUE(im_text)    TYPE string .
-    METHODS set_column_position
-      IMPORTING
-        VALUE(im_colname)  TYPE lvc_fname
-        VALUE(im_position) TYPE i .
-    METHODS set_column_sign
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        VALUE(im_flag)    TYPE c .
-    METHODS set_column_zero
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        VALUE(im_flag)    TYPE c .
-    METHODS set_column_hotspot
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname .
-    METHODS set_column_key
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname .
-    METHODS set_column_color
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname .
-    METHODS set_column_colors
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        !im_color         TYPE lvc_col .
-    METHODS set_f4_checktable
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        VALUE(im_tabname) TYPE tabname .
-    METHODS set_rowno_fname
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname .
-    METHODS set_ddic_reference
-      IMPORTING
-        VALUE(im_colname) TYPE lvc_fname
-        VALUE(im_tabname) TYPE tabname .
-    METHODS get_selected_rows
-      RETURNING
-        VALUE(re_value) TYPE salv_t_row .
-    METHODS refresh .
-    METHODS delete_data
-      IMPORTING
-        VALUE(im_index) TYPE i .
-    METHODS get_selected_data
-      RETURNING
-        VALUE(re_table) TYPE REF TO data .
-    METHODS get_data
-      RETURNING
-        VALUE(re_value) TYPE REF TO data .
-    METHODS get_event
-      RETURNING
-        VALUE(ro_event) TYPE REF TO cl_salv_events_table .
+  methods CONSTRUCTOR
+    importing
+      value(IM_REPID) type SY-REPID optional
+      value(IM_TABLE) type STANDARD TABLE
+      !IM_CONTAINER type ref to CL_GUI_CONTAINER optional
+      !IM_CONTAINER_NAME type STRING optional
+      value(IM_ROW_NAME) type LVC_FNAME default 'ROW_NO'
+      !IM_HANDLE type SLIS_HANDL optional
+      !IM_PFSTATUS type SYPFKEY optional
+      !IM_PFREPORT type SY-REPID optional
+      !IM_T_EXCLUDING type KKBLO_T_EXTAB optional
+      !IM_T_EVENTS type SLIS_T_EVENT optional .
+  methods DISPLAY .
+  methods HIDE_COLUMN
+    importing
+      value(IM_COLNAME) type LVC_FNAME .
+  methods SET_COLUMN_F4
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_VALUE) type SAP_BOOL .
+  methods SET_COLUMN_TEXT
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_TEXT) type STRING .
+  methods SET_COLUMN_POSITION
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_POSITION) type I .
+  methods SET_COLUMN_SIGN
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_FLAG) type C .
+  methods SET_COLUMN_ZERO
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_FLAG) type C .
+  methods SET_COLUMN_HOTSPOT
+    importing
+      value(IM_COLNAME) type LVC_FNAME .
+  methods SET_COLUMN_KEY
+    importing
+      value(IM_COLNAME) type LVC_FNAME .
+  methods SET_COLUMN_COLOR
+    importing
+      value(IM_COLNAME) type LVC_FNAME .
+  methods SET_COLUMN_COLORS
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      !IM_COLOR type LVC_COL .
+  methods SET_F4_CHECKTABLE
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_TABNAME) type TABNAME .
+  methods SET_ROWNO_FNAME
+    importing
+      value(IM_COLNAME) type LVC_FNAME .
+  methods SET_DDIC_REFERENCE
+    importing
+      value(IM_COLNAME) type LVC_FNAME
+      value(IM_TABNAME) type TABNAME .
+  methods GET_SELECTED_ROWS
+    returning
+      value(RE_VALUE) type SALV_T_ROW .
+  methods REFRESH .
+  methods DELETE_DATA
+    importing
+      value(IM_INDEX) type I .
+  methods GET_SELECTED_DATA
+    returning
+      value(RE_TABLE) type ref to DATA .
+  methods GET_DATA
+    returning
+      value(RE_VALUE) type ref to DATA .
+  methods GET_EVENT
+    returning
+      value(RO_EVENT) type ref to CL_SALV_EVENTS_TABLE .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -184,7 +185,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
     "设置自定义状态栏
     IF im_pfstatus IS NOT INITIAL.
       r_table->set_screen_status( pfstatus      = im_pfstatus
-                                  report        = mv_repid
+                                  report        = COND #( WHEN im_pfreport IS NOT INITIAL THEN im_pfreport ELSE mv_repid )
                                   set_functions = r_table->c_functions_all
 *XCLUDING     = MT_EXCLUDING
                                   ).
