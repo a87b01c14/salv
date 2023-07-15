@@ -187,7 +187,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
       r_table->set_screen_status( pfstatus      = im_pfstatus
                                   report        = COND #( WHEN im_pfreport IS NOT INITIAL THEN im_pfreport ELSE mv_repid )
                                   set_functions = r_table->c_functions_all
-*XCLUDING     = MT_EXCLUDING
+                                  excluding     = im_t_excluding
                                   ).
     ENDIF.
     lr_functions = r_table->get_functions( ).
