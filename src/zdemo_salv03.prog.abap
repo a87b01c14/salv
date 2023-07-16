@@ -15,20 +15,13 @@ START-OF-SELECTION.
   INTO CORRESPONDING FIELDS OF TABLE @gt_sflight
   FROM sflight.
 
-  "SALV creation with only table passed
   go_salv = NEW zcl_salv(
-    im_table    = REF #( gt_sflight )
-    im_pfstatus = 'ZSALV_STATUS'
-    im_t_events = VALUE #( ( name = zcl_salv=>events-link_click form = 'FRM_LINK_CLICK' )
-                           ( name = zcl_salv=>events-added_function form = 'FRM_ADDED_FUNCTION')
-                         ) ).
-
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-  "Display full screen grid
+    im_table     = REF #( gt_sflight )
+    im_pfstatus  = 'ZSALV_STATUS'
+    im_t_events  = VALUE #( ( name = zcl_salv=>events-link_click form = 'FRM_LINK_CLICK' )
+                            ( name = zcl_salv=>events-added_function form = 'FRM_ADDED_FUNCTION' ) )
+    im_t_hide    = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) ) ).
   go_salv->display( ).
 
 FORM frm_link_click USING sender TYPE REF TO cl_salv_events_table

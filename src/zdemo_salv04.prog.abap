@@ -11,7 +11,6 @@ TYPES: BEGIN OF gty_sflight,
 TYPES: END OF gty_sflight.
 
 DATA: gt_sflight TYPE STANDARD TABLE OF gty_sflight.
-DATA: go_salv TYPE REF TO zcl_salv.
 
 START-OF-SELECTION.
 
@@ -20,15 +19,8 @@ START-OF-SELECTION.
   INTO CORRESPONDING FIELDS OF TABLE @gt_sflight
   FROM sflight.
 
-  "SALV creation with only table passed
-  go_salv = NEW zcl_salv(
+  NEW zcl_salv(
     im_table = REF #( gt_sflight )
-  ).
-
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-  "Display full screen grid
-  go_salv->display( ).
+    im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) )
+    )->display( ).

@@ -12,7 +12,6 @@ TYPES:   t_color TYPE lvc_t_scol,
        END OF gty_sflight.
 
 DATA: gt_sflight TYPE STANDARD TABLE OF gty_sflight.
-DATA: go_salv TYPE REF TO zcl_salv.
 
 DATA: lt_s_color TYPE lvc_t_scol,
       ls_s_color TYPE lvc_s_scol.
@@ -47,21 +46,10 @@ START-OF-SELECTION.
     <fs_sflight>-t_color = lt_s_color.
   ENDLOOP.
 
-
-  "SALV creation with only table passed
-  go_salv = NEW zcl_salv(
+  NEW zcl_salv(
     im_table = REF #( gt_sflight )
-  ).
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-* set column color
-  go_salv->set_column_colors( im_colname = 'SEATSMAX'  im_color = '3' ).
-
-* set row/cell color
-  go_salv->set_column_color( im_colname = 'T_COLOR' ).
-
-  "Display full screen grid
-  go_salv->display( ).
+    im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) )
+    im_t_color = VALUE #( ( fieldname = 'SEATSMAX' color = '3' ) )
+    im_color_name = 'T_COLOR'
+    )->display( ).

@@ -7,6 +7,34 @@ public section.
 
   interfaces ZIF_SALV_EVENT_RECEIVER .
 
+  types:
+      "fname
+    BEGIN OF ty_fname,
+        fieldname TYPE lvc_fname,
+      END OF ty_fname .
+  types:
+    tt_hide TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
+  types:
+    tt_hotspot TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
+  types:
+    tt_key TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
+  types:
+      "列描述
+    BEGIN OF ty_text,
+        fieldname TYPE lvc_fname,
+        text      TYPE string,
+      END OF ty_text .
+  types:
+    tt_text TYPE HASHED TABLE OF ty_text WITH UNIQUE KEY fieldname .
+  types:
+      "列颜色
+    BEGIN OF ty_color,
+        fieldname TYPE lvc_fname,
+        color     TYPE lvc_col,
+      END OF ty_color .
+  types:
+    tt_color TYPE HASHED TABLE OF ty_color WITH UNIQUE KEY fieldname .
+
   data MV_REPID type SY-REPID .
   data MT_EVENTS type SLIS_T_EVENT .
   constants:
@@ -38,7 +66,13 @@ public section.
       !IM_PFSTATUS type SYPFKEY optional
       !IM_PFREPORT type SY-REPID optional
       !IM_T_EXCLUDING type KKBLO_T_EXTAB optional
-      !IM_T_EVENTS type SLIS_T_EVENT optional .
+      !IM_T_EVENTS type SLIS_T_EVENT optional
+      !IM_T_HIDE type ZCL_SALV=>TT_HIDE optional
+      !IM_T_TEXT type ZCL_SALV=>TT_TEXT optional
+      !IM_T_KEY type ZCL_SALV=>TT_KEY optional
+      !IM_T_HOTSPOT type ZCL_SALV=>TT_HOTSPOT optional
+      !IM_T_COLOR type ZCL_SALV=>TT_COLOR optional
+      !IM_COLOR_NAME type LVC_FNAME optional .
   methods DISPLAY .
   methods HIDE_COLUMN
     importing
@@ -103,21 +137,29 @@ public section.
   methods GET_EVENT
     returning
       value(RO_EVENT) type ref to CL_SALV_EVENTS_TABLE .
-  PROTECTED SECTION.
-  PRIVATE SECTION.
+protected section.
+private section.
 
-    DATA mt_excluding TYPE kkblo_t_extab .
-    DATA rt_data TYPE REF TO data .
-    DATA r_table TYPE REF TO cl_salv_table .
-    DATA r_columns TYPE REF TO cl_salv_columns .
-    DATA r_events TYPE REF TO cl_salv_events_table .
-    DATA rowno_fname TYPE lvc_fname VALUE 'ROW_NO' ##NO_TEXT.
-    CLASS-DATA pernr_fname TYPE lvc_fname VALUE 'PERNR' ##NO_TEXT.
+  data MT_EXCLUDING type KKBLO_T_EXTAB .
+  data RT_DATA type ref to DATA .
+  data R_TABLE type ref to CL_SALV_TABLE .
+  data R_COLUMNS type ref to CL_SALV_COLUMNS .
+  data R_EVENTS type ref to CL_SALV_EVENTS_TABLE .
+  data ROWNO_FNAME type LVC_FNAME value 'ROW_NO' ##NO_TEXT.
+  class-data PERNR_FNAME type LVC_FNAME value 'PERNR' ##NO_TEXT.
 
-    METHODS set_rowno
-      CHANGING
-        !ch_data TYPE STANDARD TABLE .
-    METHODS set_events .
+  methods SET_COLUMN
+    importing
+      !IM_T_HIDE type ZCL_SALV=>TT_HIDE
+      !IM_T_TEXT type ZCL_SALV=>TT_TEXT
+      !IM_T_KEY type ZCL_SALV=>TT_KEY
+      !IM_T_HOTSPOT type ZCL_SALV=>TT_HOTSPOT
+      !IM_T_COLOR type ZCL_SALV=>TT_COLOR
+      !IM_COLOR_NAME type LVC_FNAME .
+  methods SET_ROWNO
+    changing
+      !CH_DATA type STANDARD TABLE .
+  methods SET_EVENTS .
 ENDCLASS.
 
 
@@ -129,17 +171,11 @@ CLASS ZCL_SALV IMPLEMENTATION.
     DATA: lr_functions TYPE REF TO cl_salv_functions_list,
           lt_func_list TYPE salv_t_ui_func,
           lr_selection TYPE REF TO cl_salv_selections,
-          lr_column    TYPE REF TO cl_salv_column_table,
           lr_dspset    TYPE REF TO cl_salv_display_settings,
           lr_layout    TYPE REF TO cl_salv_layout,
           ls_key       TYPE salv_s_layout_key,
           lf_variant   TYPE slis_vari.
 
-    DATA: lt_col_list TYPE salv_t_column_ref,
-          ls_col_list TYPE salv_s_column_ref,
-          ls_header   TYPE dd01v,
-          ls_ddic     TYPE salv_s_ddic_reference,
-          lv_domain   TYPE domname.
 
     FIELD-SYMBOLS: <rt_data> TYPE STANDARD TABLE.
 
@@ -197,48 +233,17 @@ CLASS ZCL_SALV IMPLEMENTATION.
     r_columns = r_table->get_columns( ).
     r_columns->set_optimize( abap_true ).
 
-    lt_col_list = r_columns->get( ).
-    LOOP AT lt_col_list INTO ls_col_list.
-      CLEAR : ls_header, lv_domain.
-      TRY.
-          lr_column ?= r_columns->get_column( columnname = ls_col_list-columnname ).
-          "设置字段默认带符号,默认不显示0
-          DATA(lv_inttype) = lr_column->get_ddic_inttype( ).
-          IF lv_inttype CA 'IPF'.
-            lr_column->set_sign( abap_false ).
-            lr_column->set_zero( abap_false ).
-          ENDIF.
-
-          "设置字段参考表
-          lv_domain = lr_column->get_ddic_domain( ).
-          cl_reca_ddic_doma=>get_complete(
-            EXPORTING
-              id_name   = lv_domain
-            IMPORTING
-              es_header = ls_header
-            EXCEPTIONS
-              not_found = 1
-              OTHERS    = 2 ).
-
-          IF sy-subrc EQ 0 AND ls_header-entitytab IS NOT INITIAL.
-            MOVE ls_header-entitytab TO ls_ddic-table.
-            MOVE lv_domain           TO ls_ddic-field.
-            SELECT COUNT( * ) FROM dd03vv WHERE tabname = ls_ddic-table AND fieldname = ls_ddic-field.
-            CHECK sy-subrc  = 0.
-            lr_column->set_ddic_reference( value = ls_ddic ).
-          ENDIF.
-        CATCH cx_salv_not_found .
-      ENDTRY.
-    ENDLOOP.
-
-
+    set_column( im_t_hide     = im_t_hide
+                im_t_text     = im_t_text
+                im_t_key      = im_t_key
+                im_t_hotspot  = im_t_hotspot
+                im_t_color    = im_t_color
+                im_color_name = im_color_name ).
 
 *****设置斑马线*****
     lr_dspset = r_table->get_display_settings( ).
     lr_dspset->set_striped_pattern( abap_true ).
-*
-*   SET THE HOTSPOT FOR PERNR COLUMN
-    set_column_hotspot('PERNR' ).
+
 
 *设置事件
     r_events  = r_table->get_event(  ) .
@@ -610,5 +615,94 @@ CLASS ZCL_SALV IMPLEMENTATION.
                                                                          row      "salv_de_row
                                                                          column.  "salv_de_column
     ENDCASE.
+  ENDMETHOD.
+
+
+  METHOD set_column.
+    DATA:
+      lr_column   TYPE REF TO cl_salv_column_table,
+      lt_col_list TYPE salv_t_column_ref,
+      ls_col_list TYPE salv_s_column_ref,
+      ls_header   TYPE dd01v,
+      ls_ddic     TYPE salv_s_ddic_reference,
+      lv_domain   TYPE domname.
+
+*   SET THE HOTSPOT FOR PERNR COLUMN
+    set_column_hotspot('PERNR' ).
+*   SET COLOR NAME
+    IF im_color_name IS NOT INITIAL.
+      set_column_color( im_colname = im_color_name ).
+    ENDIF.
+    lt_col_list = r_columns->get( ).
+    LOOP AT lt_col_list INTO ls_col_list.
+      CLEAR : ls_header, lv_domain.
+      TRY.
+          lr_column ?= r_columns->get_column( columnname = ls_col_list-columnname ).
+          "设置字段默认带符号,默认不显示0
+          DATA(lv_inttype) = lr_column->get_ddic_inttype( ).
+          IF lv_inttype CA 'IPF'.
+            lr_column->set_sign( abap_false ).
+            lr_column->set_zero( abap_false ).
+          ENDIF.
+
+          IF im_t_hide[] IS NOT INITIAL.
+            READ TABLE im_t_hide TRANSPORTING NO FIELDS WITH TABLE KEY fieldname = ls_col_list-columnname.
+            IF sy-subrc = 0.
+              lr_column->set_visible( cl_salv_column_table=>false ).
+              lr_column->set_technical( if_salv_c_bool_sap=>true ).
+            ENDIF.
+          ENDIF.
+          IF im_t_text[] IS NOT INITIAL.
+            READ TABLE im_t_text INTO DATA(ls_text) WITH TABLE KEY fieldname = ls_col_list-columnname.
+            IF sy-subrc = 0.
+              lr_column->set_short_text( CONV #( ls_text-text ) ).
+              lr_column->set_medium_text( CONV #( ls_text-text ) ).
+              lr_column->set_long_text( CONV #( ls_text-text ) ).
+            ENDIF.
+          ENDIF.
+
+          IF im_t_key[] IS NOT INITIAL.
+            READ TABLE im_t_key TRANSPORTING NO FIELDS WITH TABLE KEY fieldname = ls_col_list-columnname.
+            IF sy-subrc = 0.
+              set_column_key( im_colname = ls_col_list-columnname ).
+            ENDIF.
+          ENDIF.
+
+          IF im_t_hotspot[] IS NOT INITIAL.
+            READ TABLE im_t_hotspot TRANSPORTING NO FIELDS WITH TABLE KEY fieldname = ls_col_list-columnname.
+            IF sy-subrc = 0.
+              set_column_hotspot( im_colname = ls_col_list-columnname ).
+            ENDIF.
+          ENDIF.
+
+          IF im_t_color[] IS NOT INITIAL.
+            READ TABLE im_t_color INTO DATA(ls_color) WITH TABLE KEY fieldname = ls_col_list-columnname.
+            IF sy-subrc = 0.
+              set_column_colors( im_colname = ls_col_list-columnname im_color = ls_color-color ).
+            ENDIF.
+          ENDIF.
+
+          "设置字段参考表
+          lv_domain = lr_column->get_ddic_domain( ).
+          cl_reca_ddic_doma=>get_complete(
+            EXPORTING
+              id_name   = lv_domain
+            IMPORTING
+              es_header = ls_header
+            EXCEPTIONS
+              not_found = 1
+              OTHERS    = 2 ).
+
+          IF sy-subrc EQ 0 AND ls_header-entitytab IS NOT INITIAL.
+            MOVE ls_header-entitytab TO ls_ddic-table.
+            MOVE lv_domain           TO ls_ddic-field.
+            SELECT COUNT( * ) FROM dd03vv WHERE tabname = ls_ddic-table AND fieldname = ls_ddic-field.
+            CHECK sy-subrc  = 0.
+            lr_column->set_ddic_reference( value = ls_ddic ).
+          ENDIF.
+        CATCH cx_salv_not_found .
+      ENDTRY.
+    ENDLOOP.
+
   ENDMETHOD.
 ENDCLASS.
