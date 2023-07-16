@@ -30,7 +30,7 @@ public section.
   methods CONSTRUCTOR
     importing
       value(IM_REPID) type SY-REPID optional
-      value(IM_TABLE) type STANDARD TABLE
+      value(IM_TABLE) type ref to DATA
       !IM_CONTAINER type ref to CL_GUI_CONTAINER optional
       !IM_CONTAINER_NAME type STRING optional
       value(IM_ROW_NAME) type LVC_FNAME default 'ROW_NO'
@@ -158,9 +158,8 @@ CLASS ZCL_SALV IMPLEMENTATION.
     ENDIF.
     rowno_fname = im_row_name.
     mt_events = im_t_events.
-    CREATE DATA rt_data LIKE im_table.
-    ASSIGN rt_data->* TO <rt_data>.
-    <rt_data>[] = im_table[].
+    rt_data = im_table.
+    ASSIGN im_table->* TO <rt_data>.
     "设置行号
     set_rowno( CHANGING ch_data = <rt_data> ).
 

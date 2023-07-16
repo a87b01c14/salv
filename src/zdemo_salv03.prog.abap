@@ -17,7 +17,7 @@ START-OF-SELECTION.
 
   "SALV creation with only table passed
   go_salv = NEW zcl_salv(
-    im_table    = gt_sflight
+    im_table    = REF #( gt_sflight )
     im_pfstatus = 'ZSALV_STATUS'
     im_t_events = VALUE #( ( name = zcl_salv=>events-link_click form = 'FRM_LINK_CLICK' )
                            ( name = zcl_salv=>events-added_function form = 'FRM_ADDED_FUNCTION')
@@ -34,23 +34,11 @@ START-OF-SELECTION.
 FORM frm_link_click USING sender TYPE REF TO cl_salv_events_table
                              row    TYPE salv_de_row
                              column TYPE salv_de_column.
-
-  FIELD-SYMBOLS:<fs_table> TYPE STANDARD TABLE,
-                <fs_row>   TYPE any,
-                <fs_col>   TYPE any.
-
-  DATA: ref_table TYPE REF TO data.
-
-  ref_table = go_salv->get_data( ).
-  ASSIGN ref_table->* TO <fs_table>.
-  CHECK sy-subrc = 0.
-  READ TABLE <fs_table> ASSIGNING <fs_row> INDEX row.
+  READ TABLE gt_sflight INTO DATA(ls_sflight) INDEX row.
   CHECK sy-subrc = 0.
   CASE column .
     WHEN 'CARRID' .
-      ASSIGN COMPONENT column OF STRUCTURE <fs_row> TO FIELD-SYMBOL(<fs_cell>).
-      CHECK sy-subrc = 0.
-      MESSAGE <fs_cell> TYPE 'I'.
+      MESSAGE |{ ls_sflight-carrid } { ls_sflight-connid } { ls_sflight-fldate }| TYPE 'I'.
   ENDCASE.
 ENDFORM.
 
@@ -78,13 +66,9 @@ ENDFORM.
 *& <--  P2        TEXT
 *&---------------------------------------------------------------------*
 FORM frm_post.
-  FIELD-SYMBOLS:<fs_table>     TYPE STANDARD TABLE,
-                <fs_table_sel> TYPE STANDARD TABLE,
-                <fs_row>       LIKE LINE OF gt_sflight,
-                <fs_col>       TYPE any.
+  DATA: lt_rows TYPE salv_t_row,
+        l_row   TYPE i.
 
-  DATA: ref_table TYPE REF TO data.
-  DATA: lt_data_sel LIKE gt_sflight.
   DATA: lt_item LIKE gt_sflight.
   DATA: lv_msgty TYPE bapi_mtype,
         lv_msgtx TYPE bapi_msg.
@@ -111,33 +95,22 @@ FORM frm_post.
 *  ENDIF.
 
 * GET SELECTED ROWS
-  ref_table = go_salv->get_selected_data( ).
-  ASSIGN ref_table->* TO <fs_table_sel>.
-  lt_data_sel = CORRESPONDING #( <fs_table_sel> ).
-  CHECK sy-subrc = 0.
-
-  DATA(lv_line) = lines( lt_data_sel ).
+  lt_rows = go_salv->get_selected_rows( ).
+  DATA(lv_line) = lines( lt_rows ).
   IF lv_line = 0.
     MESSAGE 'NO SELECTED ROWS' TYPE 'S' DISPLAY LIKE 'E'.
     RETURN.
   ENDIF.
 
-  ref_table = go_salv->get_data( ).
-  ASSIGN ref_table->* TO <fs_table>.
-  CHECK sy-subrc = 0.
-
-  LOOP AT lt_data_sel INTO DATA(ls_data_sel).
+  LOOP AT lt_rows INTO l_row.
     " DO SOMETHING
     " UPDATE <fs_table>
-*     READ TABLE <fs_table> ASSIGNING <fs_row> WITH KEY ('MATNR') = ls_data_sel-matnr
-*                                                       ('WERKS') = ls_data_sel-werks
-*                                                       ('LGORT') = ls_data_sel-lgort.
-*      IF sy-subrc = 0.
-*        <fs_row>-mblnr = lv_mblnr.
-*        <fs_row>-bapi_msg = lv_msgtx.
-*        <fs_row>-mjahr = lv_mjahr.
-*      ENDIF.
+    READ TABLE gt_sflight ASSIGNING FIELD-SYMBOL(<fs_sflight>) INDEX l_row.
+    IF sy-subrc = 0.
+      <fs_sflight>-seatsocc += 1.
+      lv_msgtx = |POST { <fs_sflight>-carrid } { <fs_sflight>-connid } { <fs_sflight>-fldate }|.
+    ENDIF.
   ENDLOOP.
-  MESSAGE 'POST' TYPE 'I'.
+  MESSAGE lv_msgtx TYPE 'I'.
   go_salv->refresh( ).
 ENDFORM.

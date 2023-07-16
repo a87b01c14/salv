@@ -17,9 +17,9 @@ START-OF-SELECTION.
 
   "SALV creation with only table passed
   lo_salv = NEW zcl_salv(
-    im_table    = lt_sflight
-    im_pfstatus = 'STANDARD_FULLSCREEN'
-    im_pfreport = 'SAPLSLVC_FULLSCREEN'
+    im_table = REF #( lt_sflight )
+*   im_pfstatus = 'STANDARD_FULLSCREEN'
+*   im_pfreport = 'SAPLSLVC_FULLSCREEN'
   ).
 
 

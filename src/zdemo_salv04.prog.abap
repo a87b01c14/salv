@@ -22,7 +22,7 @@ START-OF-SELECTION.
 
   "SALV creation with only table passed
   go_salv = NEW zcl_salv(
-    im_table = gt_sflight
+    im_table = REF #( gt_sflight )
   ).
 
 
