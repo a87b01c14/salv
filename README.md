@@ -12,7 +12,6 @@ Encapsulated SALV class, which can conveniently display ALV
 REPORT zdemo_salv01.
 
 DATA: lt_sflight TYPE STANDARD TABLE OF sflight.
-DATA: lo_salv TYPE REF TO zcl_salv.
 
 START-OF-SELECTION.
 
@@ -21,18 +20,11 @@ START-OF-SELECTION.
   INTO CORRESPONDING FIELDS OF TABLE @lt_sflight
   FROM sflight.
 
-  "SALV creation with only table passed
-  lo_salv = NEW zcl_salv(
-    im_table = lt_sflight
-  ).
-
-
-  lo_salv->hide_column( 'MANDT' ).
-  lo_salv->set_column_text( im_colname = 'SEATSMAX_B' im_text = 'CHANGE TEXT' ).
-  lo_salv->set_column_key( im_colname = 'PLANETYPE' ).
-
-  "Display full screen grid
-  lo_salv->display( ).
+  NEW zcl_salv(
+    im_table = REF #( lt_sflight )
+    im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_text = VALUE #( ( fieldname = 'SEATSMAX_B' text = 'CHANGE TEXT' ) )
+    )->display( ).
 ```
 
 ![image](https://github.com/a87b01c14/salv/blob/main/WX20230619-152948%402x.png)
@@ -48,50 +40,30 @@ START-OF-SELECTION.
 *&---------------------------------------------------------------------*
 REPORT zdemo_salv02.
 
-DATA: lt_sflight TYPE STANDARD TABLE OF sflight.
-DATA: go_salv TYPE REF TO zcl_salv.
+DATA: gt_sflight TYPE STANDARD TABLE OF sflight.
 
 START-OF-SELECTION.
 
 
   SELECT * UP TO 100 ROWS
-  INTO CORRESPONDING FIELDS OF TABLE @lt_sflight
+  INTO CORRESPONDING FIELDS OF TABLE @gt_sflight
   FROM sflight.
 
-  "SALV creation with only table passed
-  go_salv = NEW zcl_salv(
-    im_table    = lt_sflight
+  NEW zcl_salv(
+    im_table = REF #( gt_sflight )
     im_t_events = VALUE #( ( name = zcl_salv=>events-link_click form = 'FRM_LINK_CLICK' ) )
-  ).
-
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-  "Display full screen grid
-  go_salv->display( ).
+    im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) )
+    )->display( ).
 
 FORM frm_link_click USING sender TYPE REF TO cl_salv_events_table
                              row    TYPE salv_de_row
                              column TYPE salv_de_column.
-
-  FIELD-SYMBOLS:<fs_table> TYPE STANDARD TABLE,
-                <fs_row>   TYPE any,
-                <fs_col>   TYPE any.
-
-  DATA: ref_table TYPE REF TO data.
-
-  ref_table = go_salv->get_data( ).
-  ASSIGN ref_table->* TO <fs_table>.
-  CHECK sy-subrc = 0.
-  READ TABLE <fs_table> ASSIGNING <fs_row> INDEX row.
+  READ TABLE gt_sflight INTO DATA(ls_sflight) INDEX row.
   CHECK sy-subrc = 0.
   CASE column .
     WHEN 'CARRID' .
-      ASSIGN COMPONENT column OF STRUCTURE <fs_row> TO FIELD-SYMBOL(<fs_cell>).
-      CHECK sy-subrc = 0.
-      MESSAGE <fs_cell> TYPE 'I'.
+      MESSAGE |{ ls_sflight-carrid } { ls_sflight-connid } { ls_sflight-fldate }| TYPE 'I'.
   ENDCASE.
 ENDFORM.
 ```
@@ -118,42 +90,23 @@ START-OF-SELECTION.
   INTO CORRESPONDING FIELDS OF TABLE @gt_sflight
   FROM sflight.
 
-  "SALV creation with only table passed
   go_salv = NEW zcl_salv(
-    im_table    = gt_sflight
-    im_pfstatus = 'ZSALV_STATUS'
-    im_t_events = VALUE #( ( name = zcl_salv=>events-link_click form = 'FRM_LINK_CLICK' )
-                           ( name = zcl_salv=>events-added_function form = 'FRM_ADDED_FUNCTION')
-                         ) ).
-
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-  "Display full screen grid
+    im_table     = REF #( gt_sflight )
+    im_pfstatus  = 'ZSALV_STATUS'
+    im_t_events  = VALUE #( ( name = zcl_salv=>events-link_click form = 'FRM_LINK_CLICK' )
+                            ( name = zcl_salv=>events-added_function form = 'FRM_ADDED_FUNCTION' ) )
+    im_t_hide    = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) ) ).
   go_salv->display( ).
 
 FORM frm_link_click USING sender TYPE REF TO cl_salv_events_table
                              row    TYPE salv_de_row
                              column TYPE salv_de_column.
-
-  FIELD-SYMBOLS:<fs_table> TYPE STANDARD TABLE,
-                <fs_row>   TYPE any,
-                <fs_col>   TYPE any.
-
-  DATA: ref_table TYPE REF TO data.
-
-  ref_table = go_salv->get_data( ).
-  ASSIGN ref_table->* TO <fs_table>.
-  CHECK sy-subrc = 0.
-  READ TABLE <fs_table> ASSIGNING <fs_row> INDEX row.
+  READ TABLE gt_sflight INTO DATA(ls_sflight) INDEX row.
   CHECK sy-subrc = 0.
   CASE column .
     WHEN 'CARRID' .
-      ASSIGN COMPONENT column OF STRUCTURE <fs_row> TO FIELD-SYMBOL(<fs_cell>).
-      CHECK sy-subrc = 0.
-      MESSAGE <fs_cell> TYPE 'I'.
+      MESSAGE |{ ls_sflight-carrid } { ls_sflight-connid } { ls_sflight-fldate }| TYPE 'I'.
   ENDCASE.
 ENDFORM.
 
@@ -181,13 +134,9 @@ ENDFORM.
 *& <--  P2        TEXT
 *&---------------------------------------------------------------------*
 FORM frm_post.
-  FIELD-SYMBOLS:<fs_table>     TYPE STANDARD TABLE,
-                <fs_table_sel> TYPE STANDARD TABLE,
-                <fs_row>       LIKE LINE OF gt_sflight,
-                <fs_col>       TYPE any.
+  DATA: lt_rows TYPE salv_t_row,
+        l_row   TYPE i.
 
-  DATA: ref_table TYPE REF TO data.
-  DATA: lt_data_sel LIKE gt_sflight.
   DATA: lt_item LIKE gt_sflight.
   DATA: lv_msgty TYPE bapi_mtype,
         lv_msgtx TYPE bapi_msg.
@@ -214,34 +163,23 @@ FORM frm_post.
 *  ENDIF.
 
 * GET SELECTED ROWS
-  ref_table = go_salv->get_selected_data( ).
-  ASSIGN ref_table->* TO <fs_table_sel>.
-  lt_data_sel = CORRESPONDING #( <fs_table_sel> ).
-  CHECK sy-subrc = 0.
-
-  DATA(lv_line) = lines( lt_data_sel ).
+  lt_rows = go_salv->get_selected_rows( ).
+  DATA(lv_line) = lines( lt_rows ).
   IF lv_line = 0.
     MESSAGE 'NO SELECTED ROWS' TYPE 'S' DISPLAY LIKE 'E'.
     RETURN.
   ENDIF.
 
-  ref_table = go_salv->get_data( ).
-  ASSIGN ref_table->* TO <fs_table>.
-  CHECK sy-subrc = 0.
-
-  LOOP AT lt_data_sel INTO DATA(ls_data_sel).
+  LOOP AT lt_rows INTO l_row.
     " DO SOMETHING
     " UPDATE <fs_table>
-*     READ TABLE <fs_table> ASSIGNING <fs_row> WITH KEY ('MATNR') = ls_data_sel-matnr
-*                                                       ('WERKS') = ls_data_sel-werks
-*                                                       ('LGORT') = ls_data_sel-lgort.
-*      IF sy-subrc = 0.
-*        <fs_row>-mblnr = lv_mblnr.
-*        <fs_row>-bapi_msg = lv_msgtx.
-*        <fs_row>-mjahr = lv_mjahr.
-*      ENDIF.
+    READ TABLE gt_sflight ASSIGNING FIELD-SYMBOL(<fs_sflight>) INDEX l_row.
+    IF sy-subrc = 0.
+      <fs_sflight>-seatsocc += 1.
+      lv_msgtx = |POST { <fs_sflight>-carrid } { <fs_sflight>-connid } { <fs_sflight>-fldate }|.
+    ENDIF.
   ENDLOOP.
-  MESSAGE 'POST' TYPE 'I'.
+  MESSAGE lv_msgtx TYPE 'I'.
   go_salv->refresh( ).
 ENDFORM.
 ```
@@ -265,7 +203,6 @@ TYPES: BEGIN OF gty_sflight,
 TYPES: END OF gty_sflight.
 
 DATA: gt_sflight TYPE STANDARD TABLE OF gty_sflight.
-DATA: go_salv TYPE REF TO zcl_salv.
 
 START-OF-SELECTION.
 
@@ -274,18 +211,11 @@ START-OF-SELECTION.
   INTO CORRESPONDING FIELDS OF TABLE @gt_sflight
   FROM sflight.
 
-  "SALV creation with only table passed
-  go_salv = NEW zcl_salv(
-    im_table = gt_sflight
-  ).
-
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-  "Display full screen grid
-  go_salv->display( ).
+  NEW zcl_salv(
+    im_table = REF #( gt_sflight )
+    im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) )
+    )->display( ).
 ```
 
 ![image](https://github.com/a87b01c14/salv/blob/main/WX20230619-153611%402x.png)
@@ -312,7 +242,6 @@ TYPES:   t_color TYPE lvc_t_scol,
        END OF gty_sflight.
 
 DATA: gt_sflight TYPE STANDARD TABLE OF gty_sflight.
-DATA: go_salv TYPE REF TO zcl_salv.
 
 DATA: lt_s_color TYPE lvc_t_scol,
       ls_s_color TYPE lvc_s_scol.
@@ -347,24 +276,13 @@ START-OF-SELECTION.
     <fs_sflight>-t_color = lt_s_color.
   ENDLOOP.
 
-
-  "SALV creation with only table passed
-  go_salv = NEW zcl_salv(
-    im_table = gt_sflight
-  ).
-
-  go_salv->hide_column( 'MANDT' ).
-  go_salv->set_column_key( im_colname = 'PLANETYPE' ).
-  go_salv->set_column_hotspot( im_colname = 'CARRID' ).
-
-* set column color
-  go_salv->set_column_colors( im_colname = 'SEATSMAX'  im_color = '3' ).
-
-* set row/cell color
-  go_salv->set_column_color( im_colname = 'T_COLOR' ).
-
-  "Display full screen grid
-  go_salv->display( ).
+  NEW zcl_salv(
+    im_table = REF #( gt_sflight )
+    im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
+    im_t_hotspot = VALUE #( ( fieldname = 'CARRID' ) )
+    im_t_color = VALUE #( ( fieldname = 'SEATSMAX' color = '3' ) )
+    im_color_name = 'T_COLOR'
+    )->display( ).
 ```
 
 ![image](https://github.com/a87b01c14/salv/blob/main/WX20230619-153639%402x.png)
