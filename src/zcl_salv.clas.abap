@@ -120,7 +120,8 @@ public section.
   methods SET_DDIC_REFERENCE
     importing
       value(IM_COLNAME) type LVC_FNAME
-      value(IM_TABNAME) type TABNAME .
+      value(IM_TABNAME) type TABNAME
+      value(IM_FIELDNAME) type LVC_FNAME .
   methods GET_SELECTED_ROWS
     returning
       value(RE_VALUE) type SALV_T_ROW .
@@ -465,7 +466,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
     DATA: lo_column_list TYPE REF TO cl_salv_column_list.
     TRY.
         lo_column_list ?= r_columns->get_column( im_colname ).
-        lo_column_list->set_ddic_reference( value = VALUE #( table = im_tabname field = im_colname ) ).
+        lo_column_list->set_ddic_reference( value = VALUE #( table = im_tabname field = COND #( WHEN im_fieldname IS INITIAL THEN im_colname ELSE im_fieldname ) ) ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
   ENDMETHOD.
