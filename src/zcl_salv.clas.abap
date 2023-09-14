@@ -1,44 +1,53 @@
-class ZCL_SALV definition
-  public
-  final
-  create public .
+CLASS zcl_salv DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_SALV_EVENT_RECEIVER .
+    INTERFACES zif_salv_event_receiver .
 
-  types:
+    TYPES:
       "fname
-    BEGIN OF ty_fname,
+      BEGIN OF ty_fname,
         fieldname TYPE lvc_fname,
       END OF ty_fname .
-  types:
-    tt_hide TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
-  types:
-    tt_hotspot TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
-  types:
-    tt_key TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
-  types:
+    TYPES:
+      tt_hide TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
+    TYPES:
+      tt_hotspot TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
+    TYPES:
+      tt_key TYPE HASHED TABLE OF ty_fname WITH UNIQUE KEY fieldname .
+    TYPES:
       "列描述
-    BEGIN OF ty_text,
+      BEGIN OF ty_text,
         fieldname TYPE lvc_fname,
         text      TYPE string,
       END OF ty_text .
-  types:
-    tt_text TYPE HASHED TABLE OF ty_text WITH UNIQUE KEY fieldname .
-  types:
+    TYPES:
+      tt_text TYPE HASHED TABLE OF ty_text WITH UNIQUE KEY fieldname .
+    TYPES:
       "列颜色
-    BEGIN OF ty_color,
+      BEGIN OF ty_color,
         fieldname TYPE lvc_fname,
         color     TYPE lvc_col,
       END OF ty_color .
-  types:
-    tt_color TYPE HASHED TABLE OF ty_color WITH UNIQUE KEY fieldname .
+    TYPES:
+      tt_color TYPE HASHED TABLE OF ty_color WITH UNIQUE KEY fieldname .
+    TYPES:
+      "自定义按钮
+      BEGIN OF ty_function,
+        name     TYPE salv_de_function,
+        icon     TYPE icon_d,
+        text     TYPE string,
+        tooltip  TYPE string,
+        position TYPE salv_de_function_pos,
+      END OF ty_function .
+    TYPES:
+      tt_function TYPE STANDARD TABLE OF ty_function WITH EMPTY KEY.
 
-  data MV_REPID type SY-REPID .
-  data MT_EVENTS type SLIS_T_EVENT .
-  constants:
-    BEGIN OF events,
+    CONSTANTS:
+      BEGIN OF events,
         top_of_page          TYPE slis_formname VALUE 'TOP_OF_PAGE',
         end_of_page          TYPE slis_formname VALUE 'END_OF_PAGE',
         before_salv_function TYPE slis_formname VALUE 'BEFORE_SALV_FUNCTION',
@@ -47,138 +56,162 @@ public section.
         double_click         TYPE slis_formname VALUE 'DOUBLE_CLICK',
         link_click           TYPE slis_formname VALUE 'LINK_CLICK',
       END OF events .
-  data CB_TOP_OF_PAGE type SLIS_FORMNAME value 'FRM_SALV_TOP_OF_PAGE' ##NO_TEXT.
-  data CB_END_OF_PAGE type SLIS_FORMNAME value 'FRM_SALV_END_OF_PAGE' ##NO_TEXT.
-  data CB_BEFORE_SALV_FUNCTION type SLIS_FORMNAME value 'FRM_SALV_BEFORE_SALV_FUNCTION' ##NO_TEXT.
-  data CB_AFTER_SALV_FUNCTION type SLIS_FORMNAME value 'FRM_SALV_AFTER_SALV_FUNCTION' ##NO_TEXT.
-  data CB_ADDED_FUNCTION type SLIS_FORMNAME value 'FRM_SALV_ADDED_FUNCTION' ##NO_TEXT.
-  data CB_DOUBLE_CLICK type SLIS_FORMNAME value 'FRM_SALV_DOUBLE_CLICK' ##NO_TEXT.
-  data CB_LINK_CLICK type SLIS_FORMNAME value 'FRM_SALV_LINK_CLICK' ##NO_TEXT.
 
-  methods CONSTRUCTOR
-    importing
-      value(IM_REPID) type SY-REPID optional
-      value(IM_TABLE) type ref to DATA
-      !IM_CONTAINER type ref to CL_GUI_CONTAINER optional
-      !IM_CONTAINER_NAME type STRING optional
-      value(IM_ROW_NAME) type LVC_FNAME default 'ROW_NO'
-      !IM_HANDLE type SLIS_HANDL optional
-      !IM_PFSTATUS type SYPFKEY optional
-      !IM_PFREPORT type SY-REPID optional
-      !IM_T_EXCLUDING type KKBLO_T_EXTAB optional
-      !IM_T_EVENTS type SLIS_T_EVENT optional
-      !IM_T_HIDE type ZCL_SALV=>TT_HIDE optional
-      !IM_T_TEXT type ZCL_SALV=>TT_TEXT optional
-      !IM_T_KEY type ZCL_SALV=>TT_KEY optional
-      !IM_T_HOTSPOT type ZCL_SALV=>TT_HOTSPOT optional
-      !IM_T_COLOR type ZCL_SALV=>TT_COLOR optional
-      !IM_COLOR_NAME type LVC_FNAME optional .
-  methods DISPLAY .
-  methods HIDE_COLUMN
-    importing
-      value(IM_COLNAME) type LVC_FNAME .
-  methods SET_COLUMN_F4
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_VALUE) type SAP_BOOL .
-  methods SET_COLUMN_TEXT
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_TEXT) type STRING .
-  methods SET_COLUMN_POSITION
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_POSITION) type I .
-  methods SET_COLUMN_SIGN
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_FLAG) type C .
-  methods SET_COLUMN_ZERO
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_FLAG) type C .
-  methods SET_COLUMN_HOTSPOT
-    importing
-      value(IM_COLNAME) type LVC_FNAME .
-  methods SET_COLUMN_KEY
-    importing
-      value(IM_COLNAME) type LVC_FNAME .
-  methods SET_COLUMN_COLOR
-    importing
-      value(IM_COLNAME) type LVC_FNAME .
-  methods SET_COLUMN_COLORS
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      !IM_COLOR type LVC_COL .
-  methods SET_F4_CHECKTABLE
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_TABNAME) type TABNAME .
-  methods SET_ROWNO_FNAME
-    importing
-      value(IM_COLNAME) type LVC_FNAME .
-  methods SET_DDIC_REFERENCE
-    importing
-      value(IM_COLNAME) type LVC_FNAME
-      value(IM_TABNAME) type TABNAME
-      value(IM_FIELDNAME) type LVC_FNAME .
-  methods GET_SELECTED_ROWS
-    returning
-      value(RE_VALUE) type SALV_T_ROW .
-  methods REFRESH .
-  methods DELETE_DATA
-    importing
-      value(IM_INDEX) type I .
-  methods GET_SELECTED_DATA
-    returning
-      value(RE_TABLE) type ref to DATA .
-  methods GET_DATA
-    returning
-      value(RE_VALUE) type ref to DATA .
-  methods GET_EVENT
-    returning
-      value(RO_EVENT) type ref to CL_SALV_EVENTS_TABLE .
-protected section.
-private section.
+    DATA mo_table TYPE REF TO cl_salv_table .
+    DATA mv_title          TYPE lvc_title .
+    METHODS constructor
+      IMPORTING
+        VALUE(im_repid)    TYPE sy-repid OPTIONAL
+        VALUE(im_table)    TYPE REF TO data
+        !im_container      TYPE REF TO cl_gui_container OPTIONAL
+        !im_container_name TYPE string OPTIONAL
+        VALUE(im_row_name) TYPE lvc_fname DEFAULT 'ROW_NO'
+        !im_handle         TYPE slis_handl OPTIONAL
+        !im_pfstatus       TYPE sypfkey OPTIONAL
+        !im_pfreport       TYPE sy-repid OPTIONAL
+        !im_t_excluding    TYPE kkblo_t_extab OPTIONAL
+        !im_t_events       TYPE slis_t_event OPTIONAL
+        !im_t_hide         TYPE zcl_salv=>tt_hide OPTIONAL
+        !im_t_text         TYPE zcl_salv=>tt_text OPTIONAL
+        !im_t_key          TYPE zcl_salv=>tt_key OPTIONAL
+        !im_t_hotspot      TYPE zcl_salv=>tt_hotspot OPTIONAL
+        !im_t_color        TYPE zcl_salv=>tt_color OPTIONAL
+        !im_t_function     TYPE zcl_salv=>tt_function OPTIONAL
+        !im_color_name     TYPE lvc_fname OPTIONAL
+        !im_title          TYPE lvc_title OPTIONAL .
+    METHODS display .
+    METHODS hide_column
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname .
+    METHODS set_column_f4
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname
+        VALUE(im_value)   TYPE sap_bool .
+    METHODS set_column_text
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname
+        VALUE(im_text)    TYPE string .
+    METHODS set_column_position
+      IMPORTING
+        VALUE(im_colname)  TYPE lvc_fname
+        VALUE(im_position) TYPE i .
+    METHODS set_column_sign
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname
+        VALUE(im_flag)    TYPE c .
+    METHODS set_column_zero
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname
+        VALUE(im_flag)    TYPE c .
+    METHODS set_column_hotspot
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname .
+    METHODS set_column_key
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname .
+    METHODS set_column_color
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname .
+    METHODS set_column_colors
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname
+        !im_color         TYPE lvc_col .
+    METHODS set_f4_checktable
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname
+        VALUE(im_tabname) TYPE tabname .
+    METHODS set_rowno_fname
+      IMPORTING
+        VALUE(im_colname) TYPE lvc_fname .
+    METHODS set_ddic_reference
+      IMPORTING
+        VALUE(im_colname)   TYPE lvc_fname
+        VALUE(im_tabname)   TYPE tabname
+        VALUE(im_fieldname) TYPE lvc_fname .
+    METHODS get_selected_rows
+      RETURNING
+        VALUE(re_value) TYPE salv_t_row .
+    METHODS refresh .
+    METHODS delete_data
+      IMPORTING
+        VALUE(im_index) TYPE i .
+    METHODS get_selected_data
+      RETURNING
+        VALUE(re_table) TYPE REF TO data .
+    METHODS get_data
+      RETURNING
+        VALUE(re_value) TYPE REF TO data .
+    METHODS get_event
+      RETURNING
+        VALUE(ro_event) TYPE REF TO cl_salv_events_table .
+    METHODS set_container
+      IMPORTING
+        !im_container      TYPE REF TO cl_gui_container
+        !im_container_name TYPE string OPTIONAL .
+    METHODS pbo .
+    METHODS pai
+      CHANGING
+        !cv_ucomm LIKE sy-ucomm .
+    METHODS add_button
+      IMPORTING
+        !im_name     TYPE salv_de_function
+        !im_icon     TYPE icon_d OPTIONAL
+        !im_text     TYPE string OPTIONAL
+        !im_tooltip  TYPE string OPTIONAL
+        !im_position TYPE salv_de_function_pos OPTIONAL.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+    DATA cb_top_of_page TYPE slis_formname VALUE 'FRM_SALV_TOP_OF_PAGE' ##NO_TEXT.
+    DATA cb_end_of_page TYPE slis_formname VALUE 'FRM_SALV_END_OF_PAGE' ##NO_TEXT.
+    DATA cb_before_salv_function TYPE slis_formname VALUE 'FRM_SALV_BEFORE_SALV_FUNCTION' ##NO_TEXT.
+    DATA cb_after_salv_function TYPE slis_formname VALUE 'FRM_SALV_AFTER_SALV_FUNCTION' ##NO_TEXT.
+    DATA cb_added_function TYPE slis_formname VALUE 'FRM_SALV_ADDED_FUNCTION' ##NO_TEXT.
+    DATA cb_double_click TYPE slis_formname VALUE 'FRM_SALV_DOUBLE_CLICK' ##NO_TEXT.
+    DATA cb_link_click TYPE slis_formname VALUE 'FRM_SALV_LINK_CLICK' ##NO_TEXT.
 
-  data MT_EXCLUDING type KKBLO_T_EXTAB .
-  data RT_DATA type ref to DATA .
-  data R_TABLE type ref to CL_SALV_TABLE .
-  data R_COLUMNS type ref to CL_SALV_COLUMNS .
-  data R_EVENTS type ref to CL_SALV_EVENTS_TABLE .
-  data ROWNO_FNAME type LVC_FNAME value 'ROW_NO' ##NO_TEXT.
-  class-data PERNR_FNAME type LVC_FNAME value 'PERNR' ##NO_TEXT.
+    DATA mt_excluding TYPE kkblo_t_extab .
+    DATA mo_data TYPE REF TO data .
+    DATA mo_columns TYPE REF TO cl_salv_columns .
+    DATA mo_events TYPE REF TO cl_salv_events_table .
+    DATA rowno_fname TYPE lvc_fname VALUE 'ROW_NO' ##NO_TEXT.
 
-  methods SET_COLUMN
-    importing
-      !IM_T_HIDE type ZCL_SALV=>TT_HIDE
-      !IM_T_TEXT type ZCL_SALV=>TT_TEXT
-      !IM_T_KEY type ZCL_SALV=>TT_KEY
-      !IM_T_HOTSPOT type ZCL_SALV=>TT_HOTSPOT
-      !IM_T_COLOR type ZCL_SALV=>TT_COLOR
-      !IM_COLOR_NAME type LVC_FNAME .
-  methods SET_ROWNO
-    changing
-      !CH_DATA type STANDARD TABLE .
-  methods SET_EVENTS .
+    DATA mv_repid          TYPE sy-repid .
+    DATA mt_events         TYPE slis_t_event .
+    DATA mo_container      TYPE REF TO cl_gui_container.
+    DATA mv_container_name TYPE string .
+    DATA mv_handle         TYPE slis_handl .
+    DATA mv_pfstatus       TYPE sypfkey .
+    DATA mv_pfreport       TYPE sy-repid .
+    DATA mt_hide           TYPE zcl_salv=>tt_hide .
+    DATA mt_text           TYPE zcl_salv=>tt_text .
+    DATA mt_key            TYPE zcl_salv=>tt_key .
+    DATA mt_hotspot        TYPE zcl_salv=>tt_hotspot .
+    DATA mt_color          TYPE zcl_salv=>tt_color .
+    DATA mt_function       TYPE zcl_salv=>tt_function .
+    DATA mv_color_name     TYPE lvc_fname .
+    CLASS-DATA pernr_fname TYPE lvc_fname VALUE 'PERNR' ##NO_TEXT.
+
+    METHODS set_column
+      IMPORTING
+        !im_t_hide     TYPE zcl_salv=>tt_hide
+        !im_t_text     TYPE zcl_salv=>tt_text
+        !im_t_key      TYPE zcl_salv=>tt_key
+        !im_t_hotspot  TYPE zcl_salv=>tt_hotspot
+        !im_t_color    TYPE zcl_salv=>tt_color
+        !im_color_name TYPE lvc_fname .
+    METHODS set_rowno
+      CHANGING
+        !ch_data TYPE STANDARD TABLE .
+    METHODS set_events .
 ENDCLASS.
 
 
 
-CLASS ZCL_SALV IMPLEMENTATION.
+CLASS zcl_salv IMPLEMENTATION.
 
 
   METHOD constructor.
-    DATA: lr_functions TYPE REF TO cl_salv_functions_list,
-          lt_func_list TYPE salv_t_ui_func,
-          lr_selection TYPE REF TO cl_salv_selections,
-          lr_dspset    TYPE REF TO cl_salv_display_settings,
-          lr_layout    TYPE REF TO cl_salv_layout,
-          ls_key       TYPE salv_s_layout_key,
-          lf_variant   TYPE slis_vari.
-
-
-    FIELD-SYMBOLS: <rt_data> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS: <ft_data> TYPE STANDARD TABLE.
 
     DATA: callstack TYPE abap_callstack.
     IF im_repid IS INITIAL.
@@ -193,92 +226,55 @@ CLASS ZCL_SALV IMPLEMENTATION.
     ELSE.
       mv_repid = im_repid.
     ENDIF.
-    rowno_fname = im_row_name.
-    mt_events = im_t_events.
-    rt_data = im_table.
-    ASSIGN im_table->* TO <rt_data>.
+    rowno_fname       = im_row_name.
+    mt_events         = im_t_events.
+    mo_data           = im_table.
+    mo_container      = im_container.
+    mv_container_name = im_container_name.
+    mv_handle         = im_handle.
+    mv_pfstatus       = im_pfstatus.
+    mv_pfreport       = im_pfreport.
+    mt_hide           = im_t_hide.
+    mt_text           = im_t_text.
+    mt_key            = im_t_key.
+    mt_hotspot        = im_t_hotspot.
+    mt_color          = im_t_color.
+    mt_function       = im_t_function.
+    mv_color_name     = im_color_name.
+    mv_title          = im_title.
+    ASSIGN im_table->* TO <ft_data>.
     "设置行号
-    set_rowno( CHANGING ch_data = <rt_data> ).
+    set_rowno( CHANGING ch_data = <ft_data> ).
 
     "设置事件
     set_events( ).
 
-    TRY.
-        IF im_container IS NOT INITIAL.
-          cl_salv_table=>factory( EXPORTING r_container    = im_container
-                                            container_name = im_container_name
-                                  IMPORTING r_salv_table   = r_table
-                                  CHANGING  t_table        = <rt_data> ).
-        ELSE.
-          cl_salv_table=>factory( IMPORTING r_salv_table = r_table CHANGING t_table = <rt_data> ).
-        ENDIF.
-      CATCH cx_salv_msg.
-        "HANDLE EXCEPTION
-    ENDTRY.
-    lr_selection = r_table->get_selections( ).
-    lr_selection->set_selection_mode( if_salv_c_selection_mode=>row_column )."可以以行、列的方式进行选择
-
-    "设置自定义状态栏
-    IF im_pfstatus IS NOT INITIAL.
-      r_table->set_screen_status( pfstatus      = im_pfstatus
-                                  report        = COND #( WHEN im_pfreport IS NOT INITIAL THEN im_pfreport ELSE mv_repid )
-                                  set_functions = r_table->c_functions_all
-                                  excluding     = im_t_excluding
-                                  ).
-    ENDIF.
-    lr_functions = r_table->get_functions( ).
-    lr_functions->set_default( abap_true ).
-    lr_functions->set_all( abap_true ).
-    lt_func_list = lr_functions->get_functions( ).
-
-    r_columns = r_table->get_columns( ).
-    r_columns->set_optimize( abap_true ).
-
-    set_column( im_t_hide     = im_t_hide
-                im_t_text     = im_t_text
-                im_t_key      = im_t_key
-                im_t_hotspot  = im_t_hotspot
-                im_t_color    = im_t_color
-                im_color_name = im_color_name ).
-
-*****设置斑马线*****
-    lr_dspset = r_table->get_display_settings( ).
-    lr_dspset->set_striped_pattern( abap_true ).
-
-
-*设置事件
-    r_events  = r_table->get_event(  ) .
-    SET HANDLER: me->zif_salv_event_receiver~salv_link_click FOR r_events,
-                 me->zif_salv_event_receiver~salv_double_click FOR r_events,
-                 me->zif_salv_event_receiver~salv_added_function FOR r_events,
-                 me->zif_salv_event_receiver~salv_after_salv_function FOR r_events.
-
-
-    lr_layout = r_table->get_layout( ).
-    ls_key-report = im_repid.
-    ls_key-handle = im_handle.
-    lr_layout->set_key( ls_key ).
-    lr_layout->set_save_restriction( if_salv_c_layout=>restrict_none ).
-    lr_layout->set_default( abap_true )."可以保存为默认布局
   ENDMETHOD.
 
 
   METHOD delete_data.
-    FIELD-SYMBOLS:<rt_data> TYPE STANDARD TABLE.
-    ASSIGN rt_data->* TO <rt_data>.
-    DELETE <rt_data> INDEX im_index.
+    FIELD-SYMBOLS:<ft_data> TYPE STANDARD TABLE.
+    ASSIGN mo_data->* TO <ft_data>.
+    DELETE <ft_data> INDEX im_index.
   ENDMETHOD.
 
 
   METHOD display.
-    r_table->display( ) .
+    IF mt_function IS NOT INITIAL.
+      CALL FUNCTION 'Z_SALV_DISPLAY'
+        EXPORTING
+          io_salv = me.
+    ELSE.
+      pbo( ).
+      mo_table->display( ) .
+    ENDIF.
   ENDMETHOD.
 
 
   METHOD hide_column .
     DATA: lr_column TYPE REF TO cl_salv_column_table.
     TRY.
-        lr_column ?= r_columns->get_column( im_colname ).
+        lr_column ?= mo_columns->get_column( im_colname ).
         lr_column->set_visible( cl_salv_column_table=>false )."隐藏列，注：这里虽然是隐藏了，但在布局设置里还是可以看到此列的，如果使布局里也看不到，则需要gr_column->set_technical( 'X' ).
         lr_column->set_technical( if_salv_c_bool_sap=>true ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
@@ -296,7 +292,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
     lv_scrtext_m = im_text.
     lv_scrtext_s = im_text.
     TRY.
-        lr_column ?= r_columns->get_column( im_colname ).
+        lr_column ?= mo_columns->get_column( im_colname ).
         lr_column->set_short_text( lv_scrtext_s ).
         lr_column->set_medium_text( lv_scrtext_m ).
         lr_column->set_long_text( lv_scrtext_l ).
@@ -308,7 +304,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
   METHOD set_column_sign .
     DATA: lr_column    TYPE REF TO cl_salv_column_table.
     TRY.
-        lr_column ?= r_columns->get_column( im_colname ).
+        lr_column ?= mo_columns->get_column( im_colname ).
         lr_column->set_sign( im_flag ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
@@ -318,7 +314,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
   METHOD set_column_hotspot .
     DATA: lr_column TYPE REF TO cl_salv_column_table.
     TRY.
-        lr_column ?= r_columns->get_column( im_colname ).
+        lr_column ?= mo_columns->get_column( im_colname ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
     IF sy-subrc = 0.
@@ -337,7 +333,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
   METHOD set_column_key .
     DATA: lo_column_list TYPE REF TO cl_salv_column_list.
     TRY.
-        lo_column_list ?= r_columns->get_column( im_colname ).
+        lo_column_list ?= mo_columns->get_column( im_colname ).
         lo_column_list->set_key( if_salv_c_bool_sap=>true ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
@@ -345,12 +341,12 @@ CLASS ZCL_SALV IMPLEMENTATION.
 
 
   METHOD get_data.
-    re_value = rt_data.
+    re_value = mo_data.
   ENDMETHOD.
 
 
   METHOD get_selected_data.
-    FIELD-SYMBOLS:<rt_data>  TYPE STANDARD TABLE,
+    FIELD-SYMBOLS:<ft_data>  TYPE STANDARD TABLE,
                   <fs_table> TYPE STANDARD TABLE,
                   <fs_row>   TYPE any.
     DATA: lr_selections TYPE REF TO cl_salv_selections,
@@ -359,35 +355,35 @@ CLASS ZCL_SALV IMPLEMENTATION.
           lo_row        TYPE REF TO data.
 
 
-    ASSIGN rt_data->* TO <rt_data>.
-    CREATE DATA re_table LIKE <rt_data>.
+    ASSIGN mo_data->* TO <ft_data>.
+    CREATE DATA re_table LIKE <ft_data>.
     ASSIGN re_table->* TO <fs_table>.
-    lr_selections = r_table->get_selections( ).
+    lr_selections = mo_table->get_selections( ).
     lt_rows = lr_selections->get_selected_rows( ).
     LOOP AT lt_rows INTO l_row.
       APPEND INITIAL LINE TO <fs_table> ASSIGNING <fs_row>.
-      READ TABLE <rt_data> INTO <fs_row> INDEX l_row.
+      READ TABLE <ft_data> INTO <fs_row> INDEX l_row.
     ENDLOOP.
   ENDMETHOD.
 
 
   METHOD get_selected_rows.
     DATA: lr_selections TYPE REF TO cl_salv_selections.
-    lr_selections = r_table->get_selections( ).
+    lr_selections = mo_table->get_selections( ).
     re_value = lr_selections->get_selected_rows( ).
   ENDMETHOD.
 
 
   METHOD refresh.
-    r_table->refresh( ).
-    CALL METHOD me->zif_salv_event_receiver~salv_after_salv_function( r_events ).
+    mo_table->refresh( ).
+    CALL METHOD me->zif_salv_event_receiver~salv_after_salv_function( mo_events ).
   ENDMETHOD.
 
 
   METHOD set_column_color .
     DATA: lo_cols_tab TYPE REF TO cl_salv_columns_table.
     TRY.
-        lo_cols_tab ?= r_table->get_columns( ).
+        lo_cols_tab ?= mo_table->get_columns( ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
     IF sy-subrc = 0.
@@ -404,7 +400,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
     DATA: lo_col_tab  TYPE REF TO cl_salv_column_table.
     DATA: ls_color TYPE lvc_s_colo.
     TRY.
-        lo_cols_tab ?= r_table->get_columns( ).
+        lo_cols_tab ?= mo_table->get_columns( ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
     IF sy-subrc = 0.
@@ -434,7 +430,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
   METHOD set_column_f4 .
     DATA: lr_column    TYPE REF TO cl_salv_column_table.
     TRY.
-        lr_column ?= r_columns->get_column( im_colname ).
+        lr_column ?= mo_columns->get_column( im_colname ).
         lr_column->set_f4( im_value ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
@@ -442,20 +438,20 @@ CLASS ZCL_SALV IMPLEMENTATION.
 
 
   METHOD set_column_position .
-    r_columns->set_column_position( columnname = im_colname
-                                    position   = im_position ).
+    mo_columns->set_column_position( columnname = im_colname
+                                     position   = im_position ).
   ENDMETHOD.
 
 
   METHOD get_event.
-    ro_event = r_events.
+    ro_event = mo_events.
   ENDMETHOD.
 
 
   METHOD set_column_zero .
     DATA: lr_column    TYPE REF TO cl_salv_column_table.
     TRY.
-        lr_column ?= r_columns->get_column( im_colname ).
+        lr_column ?= mo_columns->get_column( im_colname ).
         lr_column->set_zero( im_flag ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
@@ -465,7 +461,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
   METHOD set_ddic_reference.
     DATA: lo_column_list TYPE REF TO cl_salv_column_list.
     TRY.
-        lo_column_list ?= r_columns->get_column( im_colname ).
+        lo_column_list ?= mo_columns->get_column( im_colname ).
         lo_column_list->set_ddic_reference( value = VALUE #( table = im_tabname field = COND #( WHEN im_fieldname IS INITIAL THEN im_colname ELSE im_fieldname ) ) ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
@@ -498,7 +494,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
   METHOD set_f4_checktable.
     DATA: lo_column_list TYPE REF TO cl_salv_column_list.
     TRY.
-        lo_column_list ?= r_columns->get_column( im_colname ).
+        lo_column_list ?= mo_columns->get_column( im_colname ).
         lo_column_list->set_f4_checktable( im_tabname ).
       CATCH cx_salv_not_found.                          "#EC NO_HANDLER
     ENDTRY.
@@ -546,12 +542,12 @@ CLASS ZCL_SALV IMPLEMENTATION.
     DATA: lv_flag(1).
     FIELD-SYMBOLS: <fs_col>  TYPE any,
                    <fs_col1> TYPE any,
-                   <rt_data> TYPE STANDARD TABLE.
+                   <ft_data> TYPE STANDARD TABLE.
 
 * Build data set to export
-    ASSIGN rt_data->* TO <rt_data>.
+    ASSIGN mo_data->* TO <ft_data>.
 
-    lr_filters = r_table->get_filters( ).
+    lr_filters = mo_table->get_filters( ).
     lt_filters = lr_filters->get( ).
 
 ** Go through the filters on each columns, build select ranges
@@ -571,7 +567,7 @@ CLASS ZCL_SALV IMPLEMENTATION.
     ENDLOOP.
 
 * Go through the data eliminating records that don't match the filters
-    LOOP AT <rt_data> ASSIGNING FIELD-SYMBOL(<fs_data>).
+    LOOP AT <ft_data> ASSIGNING FIELD-SYMBOL(<fs_data>).
       ASSIGN COMPONENT rowno_fname OF STRUCTURE <fs_data> TO <fs_col>.
       CHECK sy-subrc = 0.
       CLEAR: lv_flag.
@@ -602,11 +598,11 @@ CLASS ZCL_SALV IMPLEMENTATION.
 
 
   METHOD zif_salv_event_receiver~salv_link_click.
-    FIELD-SYMBOLS:<rt_data> TYPE STANDARD TABLE.
-    ASSIGN rt_data->* TO <rt_data>.
+    FIELD-SYMBOLS:<ft_data> TYPE STANDARD TABLE.
+    ASSIGN mo_data->* TO <ft_data>.
     CASE column.
       WHEN pernr_fname.
-        READ TABLE  <rt_data> ASSIGNING FIELD-SYMBOL(<fs_data>) INDEX row.
+        READ TABLE  <ft_data> ASSIGNING FIELD-SYMBOL(<fs_data>) INDEX row.
         CHECK sy-subrc = 0.
         ASSIGN COMPONENT column OF STRUCTURE <fs_data> TO FIELD-SYMBOL(<fs_col>).
         SET PARAMETER ID 'PER' FIELD <fs_col>.
@@ -634,11 +630,11 @@ CLASS ZCL_SALV IMPLEMENTATION.
     IF im_color_name IS NOT INITIAL.
       set_column_color( im_colname = im_color_name ).
     ENDIF.
-    lt_col_list = r_columns->get( ).
+    lt_col_list = mo_columns->get( ).
     LOOP AT lt_col_list INTO ls_col_list.
       CLEAR : ls_header, lv_domain.
       TRY.
-          lr_column ?= r_columns->get_column( columnname = ls_col_list-columnname ).
+          lr_column ?= mo_columns->get_column( columnname = ls_col_list-columnname ).
           "设置字段默认带符号,默认不显示0
           DATA(lv_inttype) = lr_column->get_ddic_inttype( ).
           IF lv_inttype CA 'IPF'.
@@ -705,5 +701,143 @@ CLASS ZCL_SALV IMPLEMENTATION.
       ENDTRY.
     ENDLOOP.
 
+  ENDMETHOD.
+
+
+  METHOD pbo.
+    DATA: lr_functions TYPE REF TO cl_salv_functions_list,
+          lt_func_list TYPE salv_t_ui_func,
+          lr_selection TYPE REF TO cl_salv_selections,
+          lr_dspset    TYPE REF TO cl_salv_display_settings,
+          lr_layout    TYPE REF TO cl_salv_layout,
+          ls_key       TYPE salv_s_layout_key,
+          lf_variant   TYPE slis_vari.
+    FIELD-SYMBOLS: <ft_data> TYPE STANDARD TABLE.
+    TRY.
+        ASSIGN mo_data->* TO <ft_data>.
+        IF mo_container IS BOUND.
+          cl_salv_table=>factory( EXPORTING r_container    = mo_container
+                                            container_name = mv_container_name
+                                  IMPORTING r_salv_table   = mo_table
+                                  CHANGING  t_table        = <ft_data> ).
+        ELSEIF mt_function IS INITIAL.
+          cl_salv_table=>factory( IMPORTING r_salv_table = mo_table CHANGING t_table = <ft_data> ).
+        ENDIF.
+
+        lr_selection = mo_table->get_selections( ).
+        lr_selection->set_selection_mode( if_salv_c_selection_mode=>row_column )."可以以行、列的方式进行选择
+
+        "设置自定义状态栏
+        IF mv_pfstatus IS NOT INITIAL.
+          mo_table->set_screen_status( pfstatus      = mv_pfstatus
+                                       report        = COND #( WHEN mv_pfreport IS NOT INITIAL THEN mv_pfreport ELSE mv_repid )
+                                       set_functions = mo_table->c_functions_all
+                                       excluding     = mt_excluding
+                                       ).
+        ENDIF.
+        lr_functions = mo_table->get_functions( ).
+        IF mt_function IS NOT INITIAL.
+          LOOP AT mt_function INTO DATA(ls_function).
+            lr_functions->add_function(
+              name     = ls_function-name
+              icon     = CONV #( ls_function-icon )
+              text     = ls_function-text
+              tooltip  = ls_function-tooltip
+              position = COND #( WHEN ls_function-position IS NOT INITIAL THEN ls_function-position ELSE if_salv_c_function_position=>right_of_salv_functions )
+            ).
+          ENDLOOP.
+        ENDIF.
+        lr_functions->set_default( abap_true ).
+        lr_functions->set_all( abap_true ).
+        lt_func_list = lr_functions->get_functions( ).
+
+        mo_columns = mo_table->get_columns( ).
+        mo_columns->set_optimize( abap_true ).
+
+        set_column( im_t_hide     = mt_hide
+                    im_t_text     = mt_text
+                    im_t_key      = mt_key
+                    im_t_hotspot  = mt_hotspot
+                    im_t_color    = mt_color
+                    im_color_name = mv_color_name ).
+
+*****设置斑马线*****
+        lr_dspset = mo_table->get_display_settings( ).
+        lr_dspset->set_striped_pattern( abap_true ).
+*设置title
+        IF mv_title IS NOT INITIAL AND mt_function IS INITIAL.
+          lr_dspset->set_list_header( mv_title ).
+        ENDIF.
+
+*设置事件
+        mo_events  = mo_table->get_event(  ) .
+        SET HANDLER: me->zif_salv_event_receiver~salv_link_click FOR mo_events,
+                     me->zif_salv_event_receiver~salv_double_click FOR mo_events,
+                     me->zif_salv_event_receiver~salv_added_function FOR mo_events,
+                     me->zif_salv_event_receiver~salv_after_salv_function FOR mo_events.
+
+
+        lr_layout = mo_table->get_layout( ).
+        ls_key-report = mv_repid.
+        ls_key-handle = mv_handle.
+        lr_layout->set_key( ls_key ).
+        lr_layout->set_save_restriction( if_salv_c_layout=>restrict_none ).
+        lr_layout->set_default( abap_true )."可以保存为默认布局
+      CATCH cx_salv_msg.
+        "HANDLE EXCEPTION
+      CATCH cx_salv_existing cx_salv_wrong_call.
+        "handle exception
+    ENDTRY.
+  ENDMETHOD.
+
+
+  METHOD zif_salv_event_receiver~salv_end_of_page.
+
+  ENDMETHOD.
+
+
+  METHOD zif_salv_event_receiver~salv_top_of_page.
+
+  ENDMETHOD.
+
+
+  METHOD set_container.
+    mo_container = im_container.
+    mv_container_name = im_container_name.
+  ENDMETHOD.
+
+
+  METHOD pai.
+    DATA: ucomm TYPE sy-ucomm.
+    ucomm = cv_ucomm.
+    CLEAR cv_ucomm.
+    CHECK ucomm NE space.
+    CASE ucomm.
+      WHEN 'BACK'.
+        ucomm = '&F03'.
+      WHEN 'RW'.
+        ucomm = '&F12'.
+      WHEN '%EX'.
+        ucomm = '&F15'.
+      WHEN '%PRI'.
+        ucomm = '&PRINT'.
+      WHEN '%SC'.
+        ucomm = '&FIND'.
+      WHEN '%SC+'.
+        ucomm = '&FIND_MORE'.
+    ENDCASE.
+    IF ucomm = '&F03' OR
+       ucomm = '&F12' OR
+       ucomm = '&F15'.
+      LEAVE TO SCREEN 0.
+    ELSE.
+      mo_table->set_function( ucomm ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD add_button.
+    APPEND VALUE #( name = im_name icon = im_icon text = im_text tooltip = im_tooltip position = im_position ) TO mt_function.
   ENDMETHOD.
 ENDCLASS.

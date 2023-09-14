@@ -18,4 +18,5 @@ START-OF-SELECTION.
     im_table = REF #( lt_sflight )
     im_t_hide = VALUE #( ( fieldname = 'MANDT' ) )
     im_t_text = VALUE #( ( fieldname = 'SEATSMAX_B' text = 'CHANGE TEXT' ) )
+    im_title = 'SET TITLE SALV DEMO01'
     )->display( ).
