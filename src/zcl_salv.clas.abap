@@ -249,6 +249,10 @@ CLASS zcl_salv IMPLEMENTATION.
     "设置事件
     set_events( ).
 
+    IF mt_function IS INITIAL.
+      pbo( ).
+    ENDIF.
+
   ENDMETHOD.
 
 
@@ -265,7 +269,6 @@ CLASS zcl_salv IMPLEMENTATION.
         EXPORTING
           io_salv = me.
     ELSE.
-      pbo( ).
       mo_table->display( ) .
     ENDIF.
   ENDMETHOD.
