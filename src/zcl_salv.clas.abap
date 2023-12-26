@@ -207,7 +207,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_salv IMPLEMENTATION.
+CLASS ZCL_SALV IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -735,7 +735,7 @@ CLASS zcl_salv IMPLEMENTATION.
           mo_table->set_screen_status( pfstatus      = mv_pfstatus
                                        report        = COND #( WHEN mv_pfreport IS NOT INITIAL THEN mv_pfreport ELSE mv_repid )
                                        set_functions = mo_table->c_functions_all
-                                       excluding     = mt_excluding
+*                                       excluding     = mt_excluding
                                        ).
         ENDIF.
         lr_functions = mo_table->get_functions( ).
